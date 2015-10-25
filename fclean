@@ -1,0 +1,12 @@
+#!/bin/sh
+
+source $(cd -P -- "$(dirname -- "$0")" && pwd -P)/shell-util/iowrapper.sh
+
+main() {
+  user_home=$HOME
+  yesno "Home directory == $user_home ?"
+  rm -fv "$user_home/.aliases" "$user_home/.vimrc" "$user_home/.zshrc"
+  rm -rfv "$user_home/.zsh"
+}
+
+main

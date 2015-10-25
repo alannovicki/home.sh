@@ -1,0 +1,43 @@
+#!/bin/sh
+# Written by Alan Novicki (https://github.com/alannovicki)
+# Creates symlinks from $HOME to the existing dotfiles in the /dotfiles/ subdirectory of this repo,
+# and runs the scripts in /exec/
+
+# constants:
+user_home=$HOME
+archived_files=$user_home/dotfile_archive_`date +%s`/
+dotfile_repo=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+
+# utilities:
+source $dotfile_repo/shell-util/iowrapper.sh
+
+archive () {
+  ([ -d $archived_files ] || mkdir $archived_files) && mv $1 $archived_files
+}
+
+# main code:
+symlink_files () {
+  for file in $dotfile_repo/dotfiles/*; do
+    dotfile_name=.`basename $file` # note that "." is prepended
+    new_dotfile=$user_home/$dotfile_name
+
+    printf_bold "$dotfile_name:\n"
+
+    [ -f $new_dotfile ] && yesno "Archive original $new_dotfile?" && archive $new_dotfile
+
+    printf "Symlinking... "
+    ln -s -v $file $new_dotfile
+    printf "\n"
+  done
+}
+
+run_scripts () {
+  for file in $dotfile_repo/exec/*; do
+    # Only execute if it's a file (not a subdir) and the user authorizes it
+    [[ -f "$file" ]] && yesno "Run $file?" && "$file"
+  done
+}
+
+symlink_files
+run_scripts
+([ -d $archived_files ] && printf_green "\nArchived files can be found at $archived_files\n") || exit 0
