@@ -7,45 +7,43 @@ USER_HOME=$HOME
 SCRIPT_HOME=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 DOTFILE_ARCHIVE=$USER_HOME/dotfile_archive_at_`date +%s`_by_$$/
 source $SCRIPT_HOME/shell-util/iowrapper.sh
+source $SCRIPT_HOME/shell-util/path.sh
 
 symlink_files() {
-  for file in `ls -A $SCRIPT_HOME/dotfiles`; do
+  for filename in `ls -A $SCRIPT_HOME/dotfiles`; do
     # ignore ".ignore" files:
-    [[ $file == *.ignore ]] && continue
+    [[ $filename == *.ignore ]] && continue
 
-    dotfile_name=`basename $file`
-    new_dotfile=$USER_HOME/$dotfile_name
+    file=$SCRIPT_HOME/dotfiles/$filename
+    user_home_path=$USER_HOME/$filename
 
-    printf_bold "$dotfile_name:\n"
-
-    [ -f $new_dotfile ] &&
-    yesno "Archive original $new_dotfile?" &&
+    path_exists "$user_home_path" &&
+    yesno "Archive existing $user_home_path?" &&
     ([ -d $DOTFILE_ARCHIVE ] || mkdir $DOTFILE_ARCHIVE) &&
-    mv $1 $DOTFILE_ARCHIVE
+    mv $user_home_path $DOTFILE_ARCHIVE
 
     printf "Symlinking... "
-    ln -s -v $file $new_dotfile
+    ln -s -v $file $user_home_path
     printf "\n"
   done
 }
 
 run_setup_scripts() {
-  for file in `ls -A $SCRIPT_HOME/exec/setup`; do
+  for filename in `ls -A $SCRIPT_HOME/exec/setup`; do
     # ignore ".ignore" files:
-    [[ $file == *.ignore ]] && continue
-    # Only execute if it's an executable file and the user authorizes it
-    [[ ! -x "$file" ]] && printf_yellow "Ignoring unexecutable $file" && continue
+    [[ $filename == *.ignore ]] && continue
+    file=$SCRIPT_HOME/exec/setup/$filename
     yesno "Run $file?" && "$file"
   done
 }
 
 print_archive_path_if_exists() {
-  [ -d $DOTFILE_ARCHIVE ] && printf_green "Archived files can be found at $DOTFILE_ARCHIVE"
+  path_exists $DOTFILE_ARCHIVE && printf_green "Archived files can be found at $DOTFILE_ARCHIVE"
 }
 
 symlink_files
 run_setup_scripts
-echo "\n\n"
+printf "\n"
 print_archive_path_if_exists
 printf_bold "\nsetup: ✔ done\n"
 exit 0

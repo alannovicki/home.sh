@@ -1,3 +1,6 @@
+#!/bin/sh
+# Author - Alan Novicki (https://github.com/alannovicki)
+
 NORMAL=`tput sgr0`
 BOLD=`tput bold`
 GREEN=`tput setaf 2`
@@ -9,8 +12,8 @@ printf_green() { printf "$GREEN$*$NORMAL"; }
 printf_yellow() { printf "$YELLOW$*$NORMAL"; }
 printf_red() { printf "$RED$*$NORMAL"; }
 
-yesno () {
-  printf_yellow "$1 [y/N] "
+prompt() {
+  printf_yellow "$1 [y/N]"
 
   # Read single character in POSIX-compatible manner:
   # http://stackoverflow.com/questions/32213758/posix-alternative-to-bash-read-with-timeout-and-character-limit
