@@ -1,0 +1,29 @@
+#!/bin/sh
+# Author - Alan Novicki (https://github.com/alannovicki)
+# Deletes files matching the ./dotfiles/ subdirectory of this repo,
+# and runs the scripts in ./exec/clean
+
+USER_HOME=$HOME
+SCRIPT_HOME=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+source $SCRIPT_HOME/shell-util/iowrapper.sh
+
+delete_dotfiles() {
+  for file in $SCRIPT_HOME/dotfiles/*; do
+    user_home_path=$USER_HOME/$file
+
+    [ -f $user_home_path ] &&
+    yesno "Delete $user_home_path?" &&
+    rm -f "$user_home_path"
+  done
+}
+
+run_cleaning_scripts() {
+  for file in $SCRIPT_HOME/exec/clean/*; do
+    # Only execute if it's a file (not a subdir) and the user authorizes it
+    [[ -f "$file" ]] && yesno "Run $file?" && "$file"
+  done
+}
+
+delete_dotfiles
+run_cleaning_scripts
+exit 0

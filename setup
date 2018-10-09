@@ -1,29 +1,24 @@
 #!/bin/sh
-# Written by Alan Novicki (https://github.com/alannovicki)
-# Creates symlinks from $HOME to the existing dotfiles in the /dotfiles/ subdirectory of this repo,
-# and runs the scripts in /exec/
+# Author - Alan Novicki (https://github.com/alannovicki)
+# Creates symlinks from $HOME to the existing dotfiles in the ./dotfiles/
+# subdirectory of this repo, and runs the scripts in ./exec/setup
 
-# constants:
-user_home=$HOME
-archived_files=$user_home/dotfile_archive_`date +%s`/
-dotfile_repo=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+USER_HOME=$HOME
+SCRIPT_HOME=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+DOTFILE_ARCHIVE=$USER_HOME/dotfile_archive_at_`date +%s`_by_$$/
+source $SCRIPT_HOME/shell-util/iowrapper.sh
 
-# utilities:
-source $dotfile_repo/shell-util/iowrapper.sh
-
-archive () {
-  ([ -d $archived_files ] || mkdir $archived_files) && mv $1 $archived_files
-}
-
-# main code:
-symlink_files () {
-  for file in $dotfile_repo/dotfiles/*; do
+symlink_files() {
+  for file in $SCRIPT_HOME/dotfiles/*; do
     dotfile_name=.`basename $file` # note that "." is prepended
-    new_dotfile=$user_home/$dotfile_name
+    new_dotfile=$USER_HOME/$dotfile_name
 
     printf_bold "$dotfile_name:\n"
 
-    [ -f $new_dotfile ] && yesno "Archive original $new_dotfile?" && archive $new_dotfile
+    [ -f $new_dotfile ] &&
+    yesno "Archive original $new_dotfile?" &&
+    ([ -d $DOTFILE_ARCHIVE ] || mkdir $DOTFILE_ARCHIVE) &&
+    mv $1 $DOTFILE_ARCHIVE
 
     printf "Symlinking... "
     ln -s -v $file $new_dotfile
@@ -31,13 +26,21 @@ symlink_files () {
   done
 }
 
-run_scripts () {
-  for file in $dotfile_repo/exec/*; do
+run_setup_scripts() {
+  for file in $SCRIPT_HOME/exec/setup/*; do
     # Only execute if it's a file (not a subdir) and the user authorizes it
     [[ -f "$file" ]] && yesno "Run $file?" && "$file"
   done
 }
 
+display_archive_if_exists() {
+  [ -d $DOTFILE_ARCHIVE ] &&
+  printf_green "Archived files can be found at $DOTFILE_ARCHIVE"
+}
+
 symlink_files
-run_scripts
-([ -d $archived_files ] && printf_green "\nArchived files can be found at $archived_files\n") || exit 0
+run_setup_scripts
+echo "\n\n"
+display_archive_if_exists
+printf_green "\n✔ done"
+exit 0
