@@ -9,8 +9,11 @@ DOTFILE_ARCHIVE=$USER_HOME/dotfile_archive_at_`date +%s`_by_$$/
 source $SCRIPT_HOME/shell-util/iowrapper.sh
 
 symlink_files() {
-  for file in $SCRIPT_HOME/dotfiles/*; do
-    dotfile_name=.`basename $file` # note that "." is prepended
+  for file in `ls -A $SCRIPT_HOME/dotfiles`; do
+    # ignore ".ignore" files:
+    [[ $file == *.ignore ]] && continue
+
+    dotfile_name=`basename $file`
     new_dotfile=$USER_HOME/$dotfile_name
 
     printf_bold "$dotfile_name:\n"
@@ -27,20 +30,22 @@ symlink_files() {
 }
 
 run_setup_scripts() {
-  for file in $SCRIPT_HOME/exec/setup/*; do
-    # Only execute if it's a file (not a subdir) and the user authorizes it
-    [[ -f "$file" ]] && yesno "Run $file?" && "$file"
+  for file in `ls -A $SCRIPT_HOME/exec/setup`; do
+    # ignore ".ignore" files:
+    [[ $file == *.ignore ]] && continue
+    # Only execute if it's an executable file and the user authorizes it
+    [[ ! -x "$file" ]] && printf_yellow "Ignoring unexecutable $file" && continue
+    yesno "Run $file?" && "$file"
   done
 }
 
-display_archive_if_exists() {
-  [ -d $DOTFILE_ARCHIVE ] &&
-  printf_green "Archived files can be found at $DOTFILE_ARCHIVE"
+print_archive_path_if_exists() {
+  [ -d $DOTFILE_ARCHIVE ] && printf_green "Archived files can be found at $DOTFILE_ARCHIVE"
 }
 
 symlink_files
 run_setup_scripts
 echo "\n\n"
-display_archive_if_exists
-printf_green "\n✔ done"
+print_archive_path_if_exists
+printf_bold "\nsetup: ✔ done\n"
 exit 0
