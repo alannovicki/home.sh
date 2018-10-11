@@ -1,6 +1,6 @@
 #!/bin/sh
 # Author - Alan Novicki (https://github.com/alannovicki)
-# Deletes files matching the ./dotfiles/ subdirectory of this repo,
+# Deletes files matching the ./dotfiles subdirectory of this repo,
 # and runs the scripts in ./exec/clean
 
 USER_HOME=$HOME
@@ -16,7 +16,7 @@ delete_dotfiles() {
     user_home_path=$USER_HOME/$filename
 
     path_exists "$user_home_path" &&
-    prompt "Delete $user_home_path?" &&
+    prompt "Delete '$user_home_path?'" &&
     rm -f "$user_home_path"
   done
 }
@@ -26,11 +26,11 @@ run_cleaning_scripts() {
     # ignore ".ignore" files:
     [[ $filename == *.ignore ]] && continue
     file=$SCRIPT_HOME/exec/clean/$filename
-    prompt "Run $file?" && "$file"
+    prompt "Run '$file?'" && "$file"
   done
 }
 
 delete_dotfiles
 run_cleaning_scripts
-printf_bold "\nclean: ✔ done\n"
+printf_bold "clean: ✔ done\n"
 exit 0

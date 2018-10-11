@@ -1,6 +1,6 @@
 #!/bin/sh
 # Author - Alan Novicki (https://github.com/alannovicki)
-# Creates symlinks from $HOME to the existing dotfiles in the ./dotfiles/
+# Creates symlinks from $HOME to the existing dotfiles in the ./dotfiles
 # subdirectory of this repo, and runs the scripts in ./exec/setup
 
 USER_HOME=$HOME
@@ -18,7 +18,7 @@ symlink_files() {
     user_home_path=$USER_HOME/$filename
 
     path_exists "$user_home_path" &&
-    yesno "Archive existing $user_home_path?" &&
+    prompt "Archive existing '$user_home_path?'" &&
     ([ -d $DOTFILE_ARCHIVE ] || mkdir $DOTFILE_ARCHIVE) &&
     mv $user_home_path $DOTFILE_ARCHIVE
 
@@ -33,7 +33,7 @@ run_setup_scripts() {
     # ignore ".ignore" files:
     [[ $filename == *.ignore ]] && continue
     file=$SCRIPT_HOME/exec/setup/$filename
-    yesno "Run $file?" && "$file"
+    prompt "Run '$file?'" && "$file"
   done
 }
 
@@ -45,5 +45,5 @@ symlink_files
 run_setup_scripts
 printf "\n"
 print_archive_path_if_exists
-printf_bold "\nsetup: ✔ done\n"
+printf_bold "setup: ✔ done\n"
 exit 0

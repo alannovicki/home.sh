@@ -13,7 +13,7 @@ printf_yellow() { printf "$YELLOW$*$NORMAL"; }
 printf_red() { printf "$RED$*$NORMAL"; }
 
 prompt() {
-  printf_yellow "$1 [y/N]"
+  printf_yellow "$1 [y/N]: " # [YES] or [NO] will appear on the same line for readability
 
   # Read single character in POSIX-compatible manner:
   # http://stackoverflow.com/questions/32213758/posix-alternative-to-bash-read-with-timeout-and-character-limit
@@ -24,10 +24,10 @@ prompt() {
 
   # did the user say yes? 0 = true
   if [[ $inputchar == "y" || $inputchar == "Y" ]]; then
-    printf_green "\n[YES]\n"
+    printf_green "[YES]\n"
     return 0
   else
-    printf_red "\n[NO]\n"
+    printf_red "[NO]\n"
     return 1
   fi
 }
