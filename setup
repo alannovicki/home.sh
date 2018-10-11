@@ -18,13 +18,11 @@ symlink_files() {
     user_home_path=$USER_HOME/$filename
 
     path_exists "$user_home_path" &&
-    prompt "Archive existing '$user_home_path?'" &&
+    prompt "Archive existing '$user_home_path?'" "ARCHIVE" "SKIP" &&
     ([ -d $DOTFILE_ARCHIVE ] || mkdir $DOTFILE_ARCHIVE) &&
     mv $user_home_path $DOTFILE_ARCHIVE
 
-    printf "Symlinking... "
-    ln -s -v $file $user_home_path
-    printf "\n"
+    path_exists "$user_home_path" || printf "Symlinking... `ln -s -v $file $user_home_path`\n"
   done
 }
 
@@ -33,7 +31,7 @@ run_setup_scripts() {
     # ignore ".ignore" files:
     [[ $filename == *.ignore ]] && continue
     file=$SCRIPT_HOME/exec/setup/$filename
-    prompt "Run '$file?'" && "$file"
+    prompt "Run '$file?'" "RUN" "SKIP" && "$file"
   done
 }
 
@@ -41,9 +39,10 @@ print_archive_path_if_exists() {
   path_exists $DOTFILE_ARCHIVE && printf_green "Archived files can be found at $DOTFILE_ARCHIVE"
 }
 
+prompt "'$USER_HOME' -- is this the correct home directory?" "CONTINUE" "EXIT" || exit 1
 symlink_files
 run_setup_scripts
 printf "\n"
-print_archive_path_if_exists
+print_archive_path_if_exists && printf "\n"
 printf_bold "setup: ✔ done\n"
 exit 0

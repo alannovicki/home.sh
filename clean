@@ -12,12 +12,8 @@ delete_dotfiles() {
   for filename in `ls -A $SCRIPT_HOME/dotfiles`; do
     # ignore ".ignore" files:
     [[ $filename == *.ignore ]] && continue
-
-    user_home_path=$USER_HOME/$filename
-
-    path_exists "$user_home_path" &&
-    prompt "Delete '$user_home_path?'" &&
-    rm -f "$user_home_path"
+    user_home_path="$USER_HOME/$filename"
+    path_exists "$user_home_path" && printf "Removing... `rm -v $user_home_path`\n"
   done
 }
 
@@ -26,10 +22,11 @@ run_cleaning_scripts() {
     # ignore ".ignore" files:
     [[ $filename == *.ignore ]] && continue
     file=$SCRIPT_HOME/exec/clean/$filename
-    prompt "Run '$file?'" && "$file"
+    prompt "Run '$file?'" "RUN" "SKIP" && "$file"
   done
 }
 
+prompt "'$USER_HOME' -- is this the correct home directory?" "CONTINUE" "EXIT" || exit 1
 delete_dotfiles
 run_cleaning_scripts
 printf_bold "clean: ✔ done\n"
