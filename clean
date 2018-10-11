@@ -1,33 +1,20 @@
 #!/bin/sh
 # Author - Alan Novicki (https://github.com/alannovicki)
-# Deletes files matching the ./dotfiles subdirectory of this repo,
-# and runs the scripts in ./exec/clean
+# Deletes files matching the ./dotfiles subdirectory of this repo
 
 USER_HOME=$HOME
 SCRIPT_HOME=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-source $SCRIPT_HOME/shell-util/iowrapper.sh
-source $SCRIPT_HOME/shell-util/path.sh
 
-delete_dotfiles() {
-  for filename in `ls -A $SCRIPT_HOME/dotfiles`; do
-    # ignore ".ignore" files:
-    [[ $filename == *.ignore ]] && continue
-    user_home_path="$USER_HOME/$filename"
-    path_exists "$user_home_path" && printf "Removing... `rm -v $user_home_path`\n"
-  done
-}
+. $SCRIPT_HOME/shell-util/io.sh
+. $SCRIPT_HOME/shell-util/path.sh
 
-run_cleaning_scripts() {
-  for filename in `ls -A $SCRIPT_HOME/exec/clean`; do
-    # ignore ".ignore" files:
-    [[ $filename == *.ignore ]] && continue
-    file=$SCRIPT_HOME/exec/clean/$filename
-    prompt "Run '$file?'" "RUN" "SKIP" && "$file"
-  done
-}
+prompt "'$USER_HOME': Is this the correct home directory?" "CONTINUE" "EXIT" \
+  || exit 1
 
-prompt "'$USER_HOME' -- is this the correct home directory?" "CONTINUE" "EXIT" || exit 1
-delete_dotfiles
-run_cleaning_scripts
-printf_bold "clean: ✔ done\n"
+for filename in `ls -A $SCRIPT_HOME/dotfiles`; do
+  user_home_path="$USER_HOME/$filename"
+  path_exists "$user_home_path" && printf "Removing... `rm -v $user_home_path`\n"
+done
+
+printf_bold "clean: ✔  done\n"
 exit 0

@@ -16,17 +16,17 @@ printf_red() { printf "$RED$*$NORMAL"; }
 # $2: Affirmative response prints "YES - $2"
 # $3: Negative response prints "NO - $3"
 prompt() {
-  printf_yellow "$1 [y/N]: " # [YES] or [NO] will appear on the same line for readability
+  printf_yellow "$1 [y/N]: "
 
-  # Read single character in POSIX-compatible manner:
-  # http://stackoverflow.com/questions/32213758/posix-alternative-to-bash-read-with-timeout-and-character-limit
+  # Read single 'Y'/'y' yes response in POSIX-compatible manner:
   old=$(stty -g)
   stty raw -echo min 0 time 150
   eval "inputchar=\$(dd bs=1 count=1 2>/dev/null)"
   stty $old
+  user_test_yes=$(test "$inputchar" = "y" -o "$inputchar" = "Y"; echo $?)
 
-  # did the user say yes? 0 = true
-  if [[ $inputchar == "y" || $inputchar == "Y" ]]; then
+  # did the user say yes? 0 is true
+  if [ "$user_test_yes" -eq 0 ]; then
     printf_green "[YES - $2]\n"
     return 0
   else

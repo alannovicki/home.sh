@@ -1,48 +1,36 @@
 #!/bin/sh
 # Author - Alan Novicki (https://github.com/alannovicki)
 # Creates symlinks from $HOME to the existing dotfiles in the ./dotfiles
-# subdirectory of this repo, and runs the scripts in ./exec/setup
+# subdirectory of this repo
 
 USER_HOME=$HOME
 SCRIPT_HOME=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 DOTFILE_ARCHIVE=$USER_HOME/dotfile_archive_at_`date +%s`_by_$$/
-source $SCRIPT_HOME/shell-util/iowrapper.sh
-source $SCRIPT_HOME/shell-util/path.sh
 
-symlink_files() {
-  for filename in `ls -A $SCRIPT_HOME/dotfiles`; do
-    # ignore ".ignore" files:
-    [[ $filename == *.ignore ]] && continue
+. $SCRIPT_HOME/shell-util/io.sh
+. $SCRIPT_HOME/shell-util/path.sh
 
-    file=$SCRIPT_HOME/dotfiles/$filename
-    user_home_path=$USER_HOME/$filename
+prompt "'$USER_HOME': Is this the correct home directory?" "CONTINUE" "EXIT" \
+  || exit 1
 
-    path_exists "$user_home_path" &&
-    prompt "Archive existing '$user_home_path?'" "ARCHIVE" "SKIP" &&
-    ([ -d $DOTFILE_ARCHIVE ] || mkdir $DOTFILE_ARCHIVE) &&
-    mv $user_home_path $DOTFILE_ARCHIVE
+for filename in `ls -A $SCRIPT_HOME/dotfiles`; do
+  file=$SCRIPT_HOME/dotfiles/$filename
+  user_home_path=$USER_HOME/$filename
 
-    path_exists "$user_home_path" || printf "Symlinking... `ln -s -v $file $user_home_path`\n"
-  done
-}
+  path_exists "$user_home_path" \
+    && prompt "Archive existing '$user_home_path?'" "ARCHIVE" "SKIP" \
+    && ([ -d $DOTFILE_ARCHIVE ] || mkdir $DOTFILE_ARCHIVE) \
+    && mv $user_home_path $DOTFILE_ARCHIVE
 
-run_setup_scripts() {
-  for filename in `ls -A $SCRIPT_HOME/exec/setup`; do
-    # ignore ".ignore" files:
-    [[ $filename == *.ignore ]] && continue
-    file=$SCRIPT_HOME/exec/setup/$filename
-    prompt "Run '$file?'" "RUN" "SKIP" && "$file"
-  done
-}
+  path_exists "$user_home_path" \
+    || printf "Symlinking... `ln -s -v $file $user_home_path`\n"
+done
 
-print_archive_path_if_exists() {
-  path_exists $DOTFILE_ARCHIVE && printf_green "Archived files can be found at $DOTFILE_ARCHIVE"
-}
-
-prompt "'$USER_HOME' -- is this the correct home directory?" "CONTINUE" "EXIT" || exit 1
-symlink_files
-run_setup_scripts
 printf "\n"
-print_archive_path_if_exists && printf "\n"
-printf_bold "setup: ✔ done\n"
+
+path_exists $DOTFILE_ARCHIVE                                        \
+  && printf_green "Archived files can be found at $DOTFILE_ARCHIVE" \
+  && printf "\n"
+
+printf_bold "setup: ✔  done\n"
 exit 0
