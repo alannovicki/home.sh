@@ -1,4 +1,5 @@
-# Created by https://www.gitignore.io/api/vim,osx,linux
+
+# Created by https://www.gitignore.io/api/vim,osx,linux,windows
 
 ### Linux ###
 *~
@@ -16,7 +17,8 @@
 .nfs*
 
 ### OSX ###
-*.DS_Store
+# General
+.DS_Store
 .AppleDouble
 .LSOverride
 
@@ -43,16 +45,47 @@ Temporary Items
 .apdisk
 
 ### Vim ###
-# swap
+# Swap
 [._]*.s[a-v][a-z]
 [._]*.sw[a-p]
-[._]s[a-v][a-z]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
 [._]sw[a-p]
-# session
-Session.vim
-# temporary
-.netrwhist
-# auto-generated tag files
-tags
 
-# End of https://www.gitignore.io/api/vim,osx,linux
+# Session
+Session.vim
+
+# Temporary
+.netrwhist
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
+### Windows ###
+# Windows thumbnail cache files
+Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+
+# Dump file
+*.stackdump
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+
+# End of https://www.gitignore.io/api/vim,osx,linux,windows
